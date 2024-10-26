@@ -74,7 +74,7 @@ end
 
 local load_balancer
 local local_conf
-local ver_header = "APISIX/" .. core.version.VERSION
+local ver_header = "SECAPP/" .. core.version.VERSION
 
 local has_mod, apisix_ngx_client = pcall(require, "resty.apisix.client")
 
@@ -159,7 +159,7 @@ function _M.http_init_worker()
     local_conf = core.config.local_conf()
 
     if local_conf.apisix and local_conf.apisix.enable_server_tokens == false then
-        ver_header = "APISIX"
+        ver_header = "SECAPP"
     end
 end
 
