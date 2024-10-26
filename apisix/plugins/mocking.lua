@@ -224,7 +224,7 @@ function _M.access(conf, ctx)
 
     ngx.header["Content-Type"] = conf.content_type
     if conf.with_mock_header then
-        ngx.header["x-mock-by"] = "APISIX/" .. core.version.VERSION
+        ngx.header["x-mock-by"] = "SECAPP/" .. core.version.VERSION
     end
 
     if conf.response_headers then
