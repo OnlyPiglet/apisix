@@ -93,14 +93,14 @@ end
 
 
 local function get_openresty_version()
-    local str = "nginx version: openresty/"
+    local str = "nginx version: SECAPP/"
     local ret = util.execute_cmd("openresty -v 2>&1")
     local pos = str_find(ret, str, 1, true)
     if pos then
         return str_sub(ret, pos + #str)
     end
 
-    str = "nginx version: nginx/"
+    str = "nginx version: SECAPP/"
     pos = str_find(ret, str, 1, true)
     if pos then
         return str_sub(ret, pos + #str)
