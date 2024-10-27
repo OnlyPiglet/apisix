@@ -92,7 +92,7 @@ function _M.header_filter(conf, ctx)
 
     core.response.set_header("Cache-Control", upstream_hdr_cache_control,
         "Expires", upstream_hdr_expires,
-        "Apisix-Cache-Status", ctx.var.upstream_cache_status)
+        "Secapp-Cache-Status", ctx.var.upstream_cache_status)
 
     ctx.var.upstream_no_cache = no_cache
     core.log.info("proxy-cache no cache:", no_cache)

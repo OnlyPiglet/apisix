@@ -38,7 +38,7 @@ local CACHE_VERSION = 1
 local _M = {}
 
 -- http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.5.1
--- note content-length & apisix-cache-status are not strictly
+-- note content-length & Secapp-Cache-status are not strictly
 -- hop-by-hop but we will be adjusting it here anyhow
 local hop_by_hop_headers = {
     ["connection"]          = true,
@@ -50,7 +50,7 @@ local hop_by_hop_headers = {
     ["transfer-encoding"]   = true,
     ["upgrade"]             = true,
     ["content-length"]      = true,
-    ["apisix-cache-status"] = true,
+    ["Secapp-Cache-status"] = true,
 }
 
 
@@ -188,7 +188,7 @@ function _M.access(conf, ctx)
     if ctx.var.request_method ~= "PURGE" then
         local ret, msg = cacheable_request(conf, ctx, cc)
         if not ret then
-            core.response.set_header("Apisix-Cache-Status", msg)
+            core.response.set_header("Secapp-Cache-Status", msg)
             return
         end
     end
@@ -214,47 +214,47 @@ function _M.access(conf, ctx)
 
     if err then
         if err == "expired" then
-            core.response.set_header("Apisix-Cache-Status", "EXPIRED")
+            core.response.set_header("Secapp-Cache-Status", "EXPIRED")
 
         elseif err ~= "not found" then
-            core.response.set_header("Apisix-Cache-Status", "MISS")
+            core.response.set_header("Secapp-Cache-Status", "MISS")
             core.log.error("failed to get from cache, err: ", err)
 
         elseif conf.cache_control and cc["only-if-cached"] then
-            core.response.set_header("Apisix-Cache-Status", "MISS")
+            core.response.set_header("Secapp-Cache-Status", "MISS")
             return 504
 
         else
-            core.response.set_header("Apisix-Cache-Status", "MISS")
+            core.response.set_header("Secapp-Cache-Status", "MISS")
         end
         return
     end
 
     if res.version ~= CACHE_VERSION then
         core.log.warn("cache format mismatch, purging ", ctx.var.upstream_cache_key)
-        core.response.set_header("Apisix-Cache-Status", "BYPASS")
+        core.response.set_header("Secapp-Cache-Status", "BYPASS")
         ctx.cache.memory:purge(ctx.var.upstream_cache_key)
         return
     end
 
     if conf.cache_control then
         if cc["max-age"] and time() - res.timestamp > cc["max-age"] then
-            core.response.set_header("Apisix-Cache-Status", "STALE")
+            core.response.set_header("Secapp-Cache-Status", "STALE")
             return
         end
 
         if cc["max-stale"] and time() - res.timestamp - res.ttl > cc["max-stale"] then
-            core.response.set_header("Apisix-Cache-Status", "STALE")
+            core.response.set_header("Secapp-Cache-Status", "STALE")
             return
         end
 
         if cc["min-fresh"] and res.ttl - (time() - res.timestamp) < cc["min-fresh"] then
-            core.response.set_header("Apisix-Cache-Status", "STALE")
+            core.response.set_header("Secapp-Cache-Status", "STALE")
             return
         end
     else
         if time() - res.timestamp > res.ttl then
-            core.response.set_header("Apisix-Cache-Status", "STALE")
+            core.response.set_header("Secapp-Cache-Status", "STALE")
             return
         end
     end
@@ -270,7 +270,7 @@ function _M.access(conf, ctx)
     end
 
     core.response.set_header("Age", floor(time() - res.timestamp))
-    core.response.set_header("Apisix-Cache-Status", "HIT")
+    core.response.set_header("Secapp-Cache-Status", "HIT")
 
     return res.status, res.body
 end
